@@ -6,6 +6,47 @@ import matplotlib.pyplot as plt
 from skimage.feature import local_binary_pattern
 
 
+def get_args():
+    parser = argparse.ArgumentParser(description="Image transformation")
+    parser.add_argument(
+        "image",
+        type=str,
+        nargs="?",
+        default=None,
+        help="Path to a single image to transform",
+    )
+    parser.add_argument(
+        "-src",
+        type=str,
+        default=None,
+        metavar="N",
+        help="Source directory path",
+    )
+    parser.add_argument(
+        "-dst",
+        type=str,
+        default=None,
+        metavar="N",
+        help="Destination directory path",
+    )
+    args = parser.parse_args()
+    return args, parser
+
+
+def check_args(args, parser):
+    if args.src and args.dst:
+        assert os.path.exists(args.src), "The source path does not exist"
+        assert os.path.isdir(args.src), "The source path must be a directory"
+        if os.path.exists(args.dst):
+            assert os.path.isdir(args.dst), "The destination path must be a directory"
+        # assert os.path.isdir(args.dst), "The destination path must be a directory"
+    elif args.image:
+        assert os.path.exists(args.image), "The path does not exist"
+        assert os.path.isfile(args.image), "The path must be a file"
+    else:
+        parser.error("You must provide an image path or -src and -dst")
+
+
 def display_images(images: list):
     cols = 4
     rows = (len(images) + cols - 1) // cols
@@ -146,38 +187,13 @@ def transform_all_images(src_dir: str, dst_dir: str) -> None:
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Image transformation")
-    parser.add_argument(
-        "image",
-        type=str,
-        nargs="?",
-        default=None,
-        help="Path to a single image to transform",
-    )
-    parser.add_argument(
-        "-src",
-        type=str,
-        default=None,
-        metavar="N",
-        help="Source directory path",
-    )
-    parser.add_argument(
-        "-dst",
-        type=str,
-        default=None,
-        metavar="N",
-        help="Destination directory path",
-    )
-    args = parser.parse_args()
+    args, parser = get_args()
     try:
+        check_args(args, parser)
         if args.src and args.dst:
             transform_all_images(args.src, args.dst)
         elif args.image:
-            assert os.path.exists(args.image), "The path does not exist"
-            assert os.path.isfile(args.image), "The path must be a file"
             transform_image(args.image, True)
-        else:
-            parser.error("You must provide an image path or -src and -dst")
     except (ValueError, AssertionError) as error:
         print(type(error).__name__ + ":", error)
 

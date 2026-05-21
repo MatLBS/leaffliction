@@ -10,6 +10,36 @@ from Distribution import count_files
 IMG_SIZE = 180
 
 
+def get_args():
+    parser = argparse.ArgumentParser(description="Play Snake")
+    parser.add_argument(
+        "--all",
+        type=str,
+        default=None,
+        metavar="N",
+        help="Apply the transformation to all images in the dataset (provide the folder path)",
+    )
+    parser.add_argument(
+        "--specific",
+        type=str,
+        default=None,
+        metavar="N",
+        help="Apply the transformation to a specific image (provide the file path)",
+    )
+    return parser.parse_args(), parser
+
+
+def check_args(args, parser):
+    if args.all:
+        assert os.path.exists(args.all), "The path does not exist"
+        assert os.path.isdir(args.all), "The path must be a directory"
+    elif args.specific:
+        assert os.path.exists(args.specific), "The path does not exist"
+        assert os.path.isfile(args.specific), "The path must be a file"
+    else:
+        parser.error("You must specify either --all or --specific")
+
+
 def shear_image(image, shear_x=0.0, shear_y=0.0):
     h, w = image.shape[:2]
 
@@ -101,31 +131,15 @@ def transform_all_images(folder_path: str) -> None:
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Play Snake")
-    parser.add_argument(
-        "--all",
-        type=str,
-        default=None,
-        metavar="N",
-        help="Apply the transformation to all images in the dataset (provide the folder path)",
-    )
-    parser.add_argument(
-        "--specific",
-        type=str,
-        default=None,
-        metavar="N",
-        help="Apply the transformation to a specific image (provide the file path)",
-    )
-    args = parser.parse_args()
+    args, parser = get_args()
     try:
+        check_args(args, parser)
         if args.all:
             transform_all_images(args.all)
         elif args.specific:
             augment_image(args.specific, True)
-        else:
-            raise ValueError("You must specify either --all or --specific")
-    except ValueError as error:
-        print(ValueError.__name__ + ":", error)
+    except (ValueError, AssertionError) as error:
+        print(type(error).__name__ + ":", error)
 
 
 if __name__ == "__main__":

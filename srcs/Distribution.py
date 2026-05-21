@@ -2,6 +2,25 @@ import os
 import sys
 from collections import defaultdict
 import matplotlib.pyplot as plt
+import argparse
+
+
+def get_args():
+    parser = argparse.ArgumentParser(description="Play Snake")
+    parser.add_argument(
+        "-src",
+        type=str,
+        default=None,
+        metavar="N",
+        help="Provide the dataset folder path to visualize the class distribution",
+    )
+    return parser.parse_args()
+
+
+def check_args(args):
+    assert args.src, "You must provide the dataset folder path"
+    assert os.path.exists(args.src), "The path does not exist"
+    assert os.path.isdir(args.src), "The path must be a directory"
 
 
 def count_files(folder_path: str) -> dict:
@@ -75,11 +94,10 @@ def distribution(folder_path: str) -> None:
 
 
 def main():
+    args = get_args()
     try:
-        assert len(sys.argv) == 2, "You must provide the dataset folder path"
-        assert os.path.exists(sys.argv[1]), "The path does not exist"
-        assert os.path.isdir(sys.argv[1]), "The path must be a directory"
-        distribution(sys.argv[1])
+        check_args(args)
+        distribution(args.src)
     except AssertionError as error:
         print(AssertionError.__name__ + ":", error)
 
