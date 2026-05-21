@@ -221,3 +221,5 @@ __marimo__/
 
 # Dataset
 images/
+augmented_directory/
+transformed_directory/

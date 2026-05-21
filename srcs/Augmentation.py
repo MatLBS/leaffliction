@@ -27,7 +27,20 @@ def save_augemented_images(images: list, output_path: str):
         )
 
 
-def transform_single_image(image_path: str, show_images: bool = True) -> None:
+def display_images(images: list):
+    cols = 4
+    rows = (len(images) + cols - 1) // cols
+    plt.figure(figsize=(cols * 3, rows * 3))
+    for i, (image, title) in enumerate(images):
+        plt.subplot(rows, cols, i + 1)
+        plt.imshow(image)
+        plt.title(title)
+        plt.axis("off")
+    plt.tight_layout()
+    plt.show()
+
+
+def augment_image(image_path: str, show_images: bool = True) -> None:
     img = cv2.imread(image_path)
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
@@ -38,7 +51,7 @@ def transform_single_image(image_path: str, show_images: bool = True) -> None:
     cropped = img[20 : 20 + IMG_SIZE, 20 : 20 + IMG_SIZE]
     sheared = shear_image(img, shear_x=0.2, shear_y=0.2)
 
-    images = [
+    augmented_images = [
         (img, "Original"),
         (flipped, "Flipped"),
         (rotated, "Rotated"),
@@ -49,18 +62,10 @@ def transform_single_image(image_path: str, show_images: bool = True) -> None:
     ]
 
     if show_images:
-        cols = 4
-        rows = (len(images) + cols - 1) // cols
-        plt.figure(figsize=(cols * 3, rows * 3))
-        for i, (image, title) in enumerate(images):
-            plt.subplot(rows, cols, i + 1)
-            plt.imshow(image)
-            plt.title(title)
-            plt.axis("off")
-        plt.tight_layout()
-        plt.show()
+        display_images(augmented_images)
+        return
 
-    save_augemented_images(images, image_path)
+    save_augemented_images(augmented_images, image_path)
 
 
 def get_image_paths(folder_path: str, name: str) -> list:
@@ -89,7 +94,7 @@ def transform_all_images(folder_path: str) -> None:
         image_paths = get_image_paths(folder_path, name)
         it = iter(image_paths)
         while nb_images_to_augment > 0:
-            transform_single_image(next(it), show_images=False)
+            augment_image(next(it), show_images=False)
             nb_images_to_augment -= 6
 
     create_augmented_directory(folder_path)
@@ -116,7 +121,7 @@ def main():
         if args.all:
             transform_all_images(args.all)
         elif args.specific:
-            transform_single_image(args.specific, True)
+            augment_image(args.specific, True)
         else:
             raise ValueError("You must specify either --all or --specific")
     except ValueError as error:
