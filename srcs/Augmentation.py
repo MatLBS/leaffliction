@@ -4,14 +4,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 import cv2
 import argparse
-
-from Distribution import count_files
+from distribution import count_files
 
 IMG_SIZE = 180
 
 
-def get_args():
-    parser = argparse.ArgumentParser(description="Play Snake")
+def get_args() -> tuple[argparse.Namespace, argparse.ArgumentParser]:
+    parser = argparse.ArgumentParser(description="Image augmentation")
     parser.add_argument(
         "--all",
         type=str,
@@ -29,7 +28,7 @@ def get_args():
     return parser.parse_args(), parser
 
 
-def check_args(args, parser):
+def check_args(args: argparse.Namespace, parser: argparse.ArgumentParser) -> None:
     if args.all:
         assert os.path.exists(args.all), "The path does not exist"
         assert os.path.isdir(args.all), "The path must be a directory"
@@ -40,14 +39,14 @@ def check_args(args, parser):
         parser.error("You must specify either --all or --specific")
 
 
-def shear_image(image, shear_x=0.0, shear_y=0.0):
+def shear_image(image: np.ndarray, shear_x: float, shear_y: float) -> np.ndarray:
     h, w = image.shape[:2]
 
     M = np.array([[1, shear_x, 0], [shear_y, 1, 0]], dtype=np.float32)
     return cv2.warpAffine(image, M, (w, h), borderMode=cv2.BORDER_REFLECT)
 
 
-def save_augemented_images(images: list, output_path: str):
+def save_augemented_images(images: list, output_path: str) -> None:
     output_path = os.path.splitext(output_path)[0]
     for i, (image, augmentation) in enumerate(images):
         if augmentation == "Original":
@@ -57,7 +56,7 @@ def save_augemented_images(images: list, output_path: str):
         )
 
 
-def display_images(images: list):
+def display_images(images: list) -> None:
     cols = 4
     rows = (len(images) + cols - 1) // cols
     plt.figure(figsize=(cols * 3, rows * 3))
@@ -79,7 +78,7 @@ def augment_image(image_path: str, show_images: bool = True) -> None:
     blur = cv2.blur(img, (10, 10))
     contrast = cv2.convertScaleAbs(img, alpha=1.5, beta=0)
     cropped = img[20 : 20 + IMG_SIZE, 20 : 20 + IMG_SIZE]
-    sheared = shear_image(img, shear_x=0.2, shear_y=0.2)
+    sheared = shear_image(img, 0.2, 0.2)
 
     augmented_images = [
         (img, "Original"),

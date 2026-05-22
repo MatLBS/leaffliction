@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from skimage.feature import local_binary_pattern
 
 
-def get_args():
+def get_args() -> tuple[argparse.Namespace, argparse.ArgumentParser]:
     parser = argparse.ArgumentParser(description="Image transformation")
     parser.add_argument(
         "image",
@@ -33,7 +33,7 @@ def get_args():
     return args, parser
 
 
-def check_args(args, parser):
+def check_args(args: argparse.Namespace, parser: argparse.ArgumentParser) -> None:
     if args.src and args.dst:
         assert os.path.exists(args.src), "The source path does not exist"
         assert os.path.isdir(args.src), "The source path must be a directory"
@@ -47,7 +47,7 @@ def check_args(args, parser):
         parser.error("You must provide an image path or -src and -dst")
 
 
-def display_images(images: list):
+def display_images(images: list) -> None:
     cols = 4
     rows = (len(images) + cols - 1) // cols
     plt.figure(figsize=(cols * 3, rows * 3))
@@ -194,6 +194,8 @@ def main():
             transform_all_images(args.src, args.dst)
         elif args.image:
             transform_image(args.image, True)
+        else:
+            parser.error("You must provide an image path or -src and -dst")
     except (ValueError, AssertionError) as error:
         print(type(error).__name__ + ":", error)
 
