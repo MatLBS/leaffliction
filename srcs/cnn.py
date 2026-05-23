@@ -1,5 +1,4 @@
 import os
-import zipfile
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -9,7 +8,7 @@ import tqdm
 
 
 class EarlyStopping:
-    def __init__(self, patience=5, delta=0, verbose=False):
+    def __init__(self, patience=2, delta=0, verbose=False):
         self.patience = patience
         self.delta = delta
         self.verbose = verbose
@@ -154,7 +153,7 @@ class CNN(nn.Module):
                 images = images.to(self.device)
                 labels = labels.to(self.device)
                 outputs = self(images)
-                # max returns (value ,index)
+
                 _, predicted = torch.max(outputs, 1)
                 n_samples += labels.size(0)
                 n_correct += (predicted == labels).sum().item()
@@ -169,7 +168,7 @@ class CNN(nn.Module):
             acc = 100.0 * n_correct / n_samples
             print(f"Accuracy of the network: {acc} %")
 
-            for i in range(8):
+            for i in range(len(labels)):
                 acc = 100.0 * n_class_correct[i] / n_class_samples[i]
                 print(f"Accuracy of {self.classes[i]}: {acc} %")
 

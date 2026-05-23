@@ -15,6 +15,13 @@ def get_args() -> tuple[argparse.Namespace, argparse.ArgumentParser]:
         metavar="N",
         help="Apply the transformation to all images in the dataset (provide the folder path)",
     )
+    parser.add_argument(
+        "--epochs",
+        type=int,
+        default=10,
+        metavar="N",
+        help="Number of epochs to train the model",
+    )
     return parser.parse_args(), parser
 
 
@@ -24,6 +31,9 @@ def check_args(args: argparse.Namespace, parser: argparse.ArgumentParser) -> Non
         assert os.path.isdir(args.src), "The path must be a directory"
     else:
         parser.error("You must specify the source folder path")
+
+    if args.epochs <= 0 or args.epochs > 30:
+        parser.error("The number of epochs must be between 1 and 30")
 
 
 def load_data(src: str, batch_size: int) -> tuple[DataLoader, DataLoader]:
@@ -61,9 +71,9 @@ def load_data(src: str, batch_size: int) -> tuple[DataLoader, DataLoader]:
     return dataset, train_loader, test_loader
 
 
-def train_model(dataset_path: str) -> None:
+def train_model(dataset_path: str, epochs: int) -> None:
     dataset, train_loader, test_loader = load_data(dataset_path, 256)
-    cnn = CNN(dataset=dataset)
+    cnn = CNN(dataset=dataset, epochs=epochs)
 
     cnn.fit(train_loader, test_loader)
     cnn.test(test_loader)
@@ -76,7 +86,7 @@ def main():
     try:
         check_args(args, parser)
         if args.src:
-            train_model(args.src)
+            train_model(args.src, args.epochs)
         else:
             parser.error("You must specify the source folder path")
     except (ValueError, AssertionError) as error:
