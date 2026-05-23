@@ -30,15 +30,33 @@ To help the model focus on the relevant parts of a leaf, several **image transfo
 
 ---
 
-## ⚙️ Setup
+## Setup
 
-This project uses [`uv`](https://docs.astral.sh/uv/) for dependency management. All dependencies declared in `pyproject.toml` are installed automatically the first time you run a command.
+1. Clone the repository
+
+```bash
+git clone https://github.com/MatLBS/leaffliction.git
+cd leaffliction
+```
+
+2. Install dependencies with [uv](https://github.com/astral-sh/uv)
+
+```bash
+uv sync
+```
+
+---
+
+## Commands
 
 ### 1. Analyze the dataset distribution
 
 ```bash
 uv run srcs/distribution.py -src images
 ```
+
+<img width="1132" height="482" alt="Capture d’écran 2026-05-23 à 17 20 15" src="https://github.com/user-attachments/assets/e4d26cb4-487f-4826-8891-10fcc5c3d84a" />
+
 
 Displays a pie chart and a bar chart of the number of images per class for each plant.
 
@@ -55,6 +73,9 @@ Balances the dataset by generating augmented variants (flipped, rotated, blurred
 ```bash
 uv run srcs/transformation.py -src augmented_directory -dst transformed_directory
 ```
+
+<img width="1174" height="590" alt="Capture d’écran 2026-05-23 à 17 21 47" src="https://github.com/user-attachments/assets/2f0939b7-69eb-45c1-b10e-7ff80079b3ed" />
+
 
 Applies the full set of computer vision transformations to every image and saves them into `transformed_directory/`. This is the dataset used for training.
 
@@ -84,9 +105,11 @@ uv run srcs/predict.py --model models/XXX --image images/Grape_Esca/image\ \(1\)
 
 The original image and a random transformed version of it are displayed side by side, along with the predicted class.
 
+<img width="947" height="489" alt="Capture d’écran 2026-05-23 à 17 24 43" src="https://github.com/user-attachments/assets/791a9919-a642-4844-be8d-33fc1f96db33" />
+
 ---
 
-## 🛠️ CLI options
+## CLI options
 
 ### `distribution.py`
 
@@ -105,7 +128,7 @@ The original image and a random transformed version of it are displayed side by 
 
 | Option | Description |
 |--------|-------------|
-| `image` (positional) | Path to a single image — displays all transformations side by side |
+| `--specific` | Path to a single image — displays all transformations side by side |
 | `-src` | Source directory containing the augmented dataset |
 | `-dst` | Destination directory where transformed images will be saved |
 
@@ -125,7 +148,7 @@ The original image and a random transformed version of it are displayed side by 
 
 ---
 
-## 🗂️ Project architecture
+## Project architecture
 
 ```
 leaffliction/
@@ -138,8 +161,6 @@ leaffliction/
 │   ├── Grape_Esca/
 │   ├── Grape_healthy/
 │   └── Grape_spot/
-├── augmented_directory/          # Dataset balanced via augmentation
-├── transformed_directory/        # Transformed dataset used for training
 ├── models/                       # Trained model checkpoints (.zip)
 │   ├── model15.zip
 │   └── model20.zip
