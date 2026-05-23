@@ -9,7 +9,7 @@ from skimage.feature import local_binary_pattern
 def get_args() -> tuple[argparse.Namespace, argparse.ArgumentParser]:
     parser = argparse.ArgumentParser(description="Image transformation")
     parser.add_argument(
-        "image",
+        "--specific",
         type=str,
         nargs="?",
         default=None,
@@ -39,10 +39,9 @@ def check_args(args: argparse.Namespace, parser: argparse.ArgumentParser) -> Non
         assert os.path.isdir(args.src), "The source path must be a directory"
         if os.path.exists(args.dst):
             assert os.path.isdir(args.dst), "The destination path must be a directory"
-        # assert os.path.isdir(args.dst), "The destination path must be a directory"
-    elif args.image:
-        assert os.path.exists(args.image), "The path does not exist"
-        assert os.path.isfile(args.image), "The path must be a file"
+    elif args.specific:
+        assert os.path.exists(args.specific), "The path does not exist"
+        assert os.path.isfile(args.specific), "The path must be a file"
     else:
         parser.error("You must provide an image path or -src and -dst")
 
@@ -192,8 +191,8 @@ def main():
         check_args(args, parser)
         if args.src and args.dst:
             transform_all_images(args.src, args.dst)
-        elif args.image:
-            transform_image(args.image, True)
+        elif args.specific:
+            transform_image(args.specific, True)
         else:
             parser.error("You must provide an image path or -src and -dst")
     except (ValueError, AssertionError) as error:
