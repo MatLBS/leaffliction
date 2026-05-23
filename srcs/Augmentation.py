@@ -12,11 +12,11 @@ IMG_SIZE = 180
 def get_args() -> tuple[argparse.Namespace, argparse.ArgumentParser]:
     parser = argparse.ArgumentParser(description="Image augmentation")
     parser.add_argument(
-        "--all",
+        "-src",
         type=str,
         default=None,
         metavar="N",
-        help="Apply the transformation to all images in the dataset (provide the folder path)",
+        help="Apply the transformation to all images in a directory (provide the directory path)",
     )
     parser.add_argument(
         "--specific",
@@ -29,14 +29,14 @@ def get_args() -> tuple[argparse.Namespace, argparse.ArgumentParser]:
 
 
 def check_args(args: argparse.Namespace, parser: argparse.ArgumentParser) -> None:
-    if args.all:
-        assert os.path.exists(args.all), "The path does not exist"
-        assert os.path.isdir(args.all), "The path must be a directory"
+    if args.src:
+        assert os.path.exists(args.src), "The path does not exist"
+        assert os.path.isdir(args.src), "The path must be a directory"
     elif args.specific:
         assert os.path.exists(args.specific), "The path does not exist"
         assert os.path.isfile(args.specific), "The path must be a file"
     else:
-        parser.error("You must specify either --all or --specific")
+        parser.error("You must specify either -src or --specific")
 
 
 def shear_image(image: np.ndarray, shear_x: float, shear_y: float) -> np.ndarray:
@@ -133,8 +133,8 @@ def main():
     args, parser = get_args()
     try:
         check_args(args, parser)
-        if args.all:
-            transform_all_images(args.all)
+        if args.src:
+            transform_all_images(args.src)
         elif args.specific:
             augment_image(args.specific, True)
     except (ValueError, AssertionError) as error:
