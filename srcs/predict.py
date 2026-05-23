@@ -1,9 +1,22 @@
 import argparse
 import os
+import random
+import cv2
+import numpy as np
 import torch
+import matplotlib.pyplot as plt
 from cnn import CNN
 import torchvision.transforms as transforms
 from PIL import Image
+from transformation import (
+    corner_detecttion,
+    gaussian_blur,
+    canny_edge,
+    LBP,
+    mask,
+    ROI,
+    leaf_mask,
+)
 
 
 def get_args() -> tuple[argparse.Namespace, argparse.ArgumentParser]:
@@ -38,14 +51,56 @@ def check_args(args: argparse.Namespace, parser: argparse.ArgumentParser) -> Non
         parser.error("You must specify the image file path")
 
 
+def to_pil_rgb(img: np.ndarray) -> Image.Image:
+    if img.ndim == 2:
+        return Image.fromarray(img).convert("RGB")
+    return Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+
+
+def apply_random_transformation(img_bgr: np.ndarray) -> tuple[Image.Image, str]:
+    binary_mask = leaf_mask(img_bgr)
+    options = [
+        ("Harris_corners", lambda: corner_detecttion(img_bgr)),
+        ("Gaussian_blurred", lambda: gaussian_blur(img_bgr)),
+        ("Edges", lambda: canny_edge(img_bgr)),
+        ("Masked", lambda: mask(img_bgr, binary_mask)),
+        ("LBP", lambda: LBP(img_bgr)),
+        ("ROI", lambda: ROI(img_bgr, binary_mask)),
+    ]
+    name, fn = random.choice(options)
+
+    image_transformed = to_pil_rgb(fn())
+    return image_transformed, name
+
+
+def display_prediction(
+    original_bgr: np.ndarray,
+    transformed_img: Image.Image,
+    transformation_name: str,
+    prediction: str,
+) -> None:
+    fig, axes = plt.subplots(1, 2, figsize=(10, 5))
+    axes[0].imshow(cv2.cvtColor(original_bgr, cv2.COLOR_BGR2RGB))
+    axes[0].set_title("Original")
+    axes[0].axis("off")
+    axes[1].imshow(transformed_img)
+    axes[1].set_title(f"Transformed ({transformation_name})")
+    axes[1].axis("off")
+    fig.suptitle(f"Prediction: {prediction}", fontsize=14)
+    plt.tight_layout()
+    plt.show()
+
+
 def make_prediction(model_path: str, image_path: str) -> None:
     model = CNN()
 
     state_dict = torch.load(model_path)
     model.load_state_dict(state_dict["state_dict"])
-
     classes = state_dict["classes"]
-    image = Image.open(image_path).convert("RGB")
+
+    original_bgr = cv2.imread(image_path)
+    transformed_img, transformation_name = apply_random_transformation(original_bgr)
+
     transform = transforms.Compose(
         [
             transforms.Resize((64, 64)),
@@ -53,10 +108,10 @@ def make_prediction(model_path: str, image_path: str) -> None:
             transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
         ]
     )
-    tensor = transform(image)
+    tensor = transform(transformed_img)
 
     prediction = model.predict(tensor, classes)
-    print("Prediction:", prediction)
+    display_prediction(original_bgr, transformed_img, transformation_name, prediction)
 
 
 def main():
