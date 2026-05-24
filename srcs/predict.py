@@ -9,13 +9,7 @@ from cnn import CNN
 import torchvision.transforms as transforms
 from PIL import Image
 from transformation import (
-    corner_detecttion,
-    gaussian_blur,
-    canny_edge,
-    LBP,
-    mask,
-    ROI,
-    leaf_mask,
+    apply_specific_transformation,
 )
 
 
@@ -57,34 +51,17 @@ def to_pil_rgb(img: np.ndarray) -> Image.Image:
     return Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
 
 
-def apply_random_transformation(img_bgr: np.ndarray) -> tuple[Image.Image, str]:
-    binary_mask = leaf_mask(img_bgr)
-    options = [
-        ("Harris_corners", lambda: corner_detecttion(img_bgr)),
-        ("Gaussian_blurred", lambda: gaussian_blur(img_bgr)),
-        ("Edges", lambda: canny_edge(img_bgr)),
-        ("Masked", lambda: mask(img_bgr, binary_mask)),
-        ("LBP", lambda: LBP(img_bgr)),
-        ("ROI", lambda: ROI(img_bgr, binary_mask)),
-    ]
-    name, fn = random.choice(options)
-
-    image_transformed = to_pil_rgb(fn())
-    return image_transformed, name
-
-
 def display_prediction(
     original_bgr: np.ndarray,
     transformed_img: Image.Image,
-    transformation_name: str,
     prediction: str,
 ) -> None:
     fig, axes = plt.subplots(1, 2, figsize=(10, 5))
     axes[0].imshow(cv2.cvtColor(original_bgr, cv2.COLOR_BGR2RGB))
     axes[0].set_title("Original")
     axes[0].axis("off")
+    axes[1].set_title("Transformed")
     axes[1].imshow(transformed_img)
-    axes[1].set_title(f"Transformed ({transformation_name})")
     axes[1].axis("off")
     fig.suptitle(f"Prediction: {prediction}", fontsize=14)
     plt.tight_layout()
@@ -98,8 +75,8 @@ def make_prediction(model_path: str, image_path: str) -> None:
     model.load_state_dict(state_dict["state_dict"])
     classes = state_dict["classes"]
 
-    original_bgr = cv2.imread(image_path)
-    transformed_img, transformation_name = apply_random_transformation(original_bgr)
+    original_img = cv2.imread(image_path)
+    transformed_img = apply_specific_transformation(image_path)
 
     transform = transforms.Compose(
         [
@@ -108,10 +85,10 @@ def make_prediction(model_path: str, image_path: str) -> None:
             transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
         ]
     )
-    tensor = transform(transformed_img)
+    tensor = transform(to_pil_rgb(transformed_img))
 
     prediction = model.predict(tensor, classes)
-    display_prediction(original_bgr, transformed_img, transformation_name, prediction)
+    display_prediction(original_img, transformed_img, prediction)
 
 
 def main():

@@ -135,7 +135,7 @@ def ROI(img: np.ndarray, binary_mask: np.ndarray) -> np.ndarray:
     return final_image
 
 
-def transform_image(image_path: str, show_images: bool = True) -> list:
+def apply_all_transformations(image_path: str, show_images: bool = True) -> list:
     img = cv2.imread(image_path)
     binary_mask = leaf_mask(img)
 
@@ -163,6 +163,16 @@ def transform_image(image_path: str, show_images: bool = True) -> list:
     return transformed_images
 
 
+def apply_specific_transformation(image_path: str) -> np.ndarray:
+    img = cv2.imread(image_path)
+
+    binary_mask = leaf_mask(img)
+    cornered_image = corner_detecttion(img)
+    masked_image = mask(cornered_image, binary_mask)
+
+    return masked_image
+
+
 def transform_all_images(src_dir: str, dst_dir: str) -> None:
     if not os.path.exists(dst_dir):
         os.makedirs(dst_dir)
@@ -172,15 +182,12 @@ def transform_all_images(src_dir: str, dst_dir: str) -> None:
         dst_path = os.path.join(dst_dir, filename)
 
         if os.path.isfile(src_path):
-            transfomed_images = transform_image(src_path, show_images=False)
-            for _, (image, transformation) in enumerate(transfomed_images):
-                output_path = os.path.splitext(dst_path)[0]
-                if transformation == "Original":
-                    continue
-                cv2.imwrite(
-                    f"{output_path}_{transformation}.jpg",
-                    cv2.cvtColor(image, cv2.COLOR_RGB2BGR),
-                )
+            transfomed_image = apply_specific_transformation(src_path)
+            output_path = os.path.splitext(dst_path)[0]
+            cv2.imwrite(
+                f"{output_path}_transformed.jpg",
+                cv2.cvtColor(transfomed_image, cv2.COLOR_RGB2BGR),
+            )
         elif os.path.isdir(src_path):
             transform_all_images(src_path, dst_path)
 
@@ -192,7 +199,7 @@ def main():
         if args.src and args.dst:
             transform_all_images(args.src, args.dst)
         elif args.specific:
-            transform_image(args.specific, True)
+            apply_all_transformations(args.specific, True)
         else:
             parser.error("You must provide an image path or -src and -dst")
     except (ValueError, AssertionError) as error:

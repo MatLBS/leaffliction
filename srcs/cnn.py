@@ -67,13 +67,13 @@ class CNN(nn.Module):
         model_directory = os.path.join(os.getcwd(), "models")
         if not os.path.exists(model_directory):
             os.makedirs(model_directory, exist_ok=True)
-        path = os.path.join(model_directory, f"model{self.epochs}.zip")
+        path = os.path.join(model_directory, f"model{self.epochs}.pth")
         torch.save(
             {"state_dict": self.state_dict(), "classes": self.classes},
             path,
         )
         print(
-            f"Model saved to {os.path.join(model_directory, f'model{self.epochs}.zip')}"
+            f"Model saved to {os.path.join(model_directory, f'model{self.epochs}.pth')}"
         )
 
     def display_loss(self) -> None:
@@ -158,7 +158,7 @@ class CNN(nn.Module):
                 n_samples += labels.size(0)
                 n_correct += (predicted == labels).sum().item()
 
-                for i in range(self.batch_size):
+                for i in range(labels.size(0)):
                     label = labels[i]
                     pred = predicted[i]
                     if label == pred:

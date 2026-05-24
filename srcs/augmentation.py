@@ -47,12 +47,15 @@ def shear_image(image: np.ndarray, shear_x: float, shear_y: float) -> np.ndarray
 
 
 def save_augemented_images(images: list, output_path: str) -> None:
-    output_path = os.path.splitext(output_path)[0]
-    for i, (image, augmentation) in enumerate(images):
+    rel = output_path.split(os.sep, 1)[1]
+    rel = os.path.splitext(rel)[0]
+    dest = os.path.join("augmented_directory", rel)
+
+    for image, augmentation in images:
         if augmentation == "Original":
             continue
         cv2.imwrite(
-            f"{output_path}_{augmentation}.jpg", cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+            f"{dest}_{augmentation}.jpg", cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
         )
 
 
@@ -118,6 +121,8 @@ def transform_all_images(folder_path: str) -> None:
     counts = count_files(folder_path)
     max_count = max(counts.values()) if counts else 0
 
+    create_augmented_directory(folder_path)
+
     for name, count in counts.items():
         nb_images_to_augment = max_count - count
         image_paths = get_image_paths(folder_path, name)
@@ -125,8 +130,6 @@ def transform_all_images(folder_path: str) -> None:
         while nb_images_to_augment > 0:
             augment_image(next(it), show_images=False)
             nb_images_to_augment -= 6
-
-    create_augmented_directory(folder_path)
 
 
 def main():

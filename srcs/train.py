@@ -61,7 +61,7 @@ def load_data(src: str, batch_size: int) -> tuple[DataLoader, DataLoader]:
     test_loader = DataLoader(
         test_set,
         batch_size=batch_size,
-        shuffle=False,
+        shuffle=True,
         num_workers=4,
         pin_memory=True,
         persistent_workers=True,
@@ -72,8 +72,9 @@ def load_data(src: str, batch_size: int) -> tuple[DataLoader, DataLoader]:
 
 
 def train_model(dataset_path: str, epochs: int) -> None:
-    dataset, train_loader, test_loader = load_data(dataset_path, 256)
-    cnn = CNN(dataset=dataset, epochs=epochs)
+    batch_size = 64
+    dataset, train_loader, test_loader = load_data(dataset_path, batch_size)
+    cnn = CNN(dataset=dataset, epochs=epochs, batch_size=batch_size)
 
     cnn.fit(train_loader, test_loader)
     cnn.test(test_loader)
