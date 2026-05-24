@@ -18,7 +18,10 @@ A typical CNN is composed of three main building blocks:
 - **Pooling layers** — downsample feature maps (here `MaxPool2d`) to reduce spatial dimensions, lower computation cost and make the network more robust to small translations.
 - **Fully-connected layers** — flatten the final feature maps and combine them to produce class scores.
 
+<img width="655" height="363" alt="Capture d’écran 2026-05-24 à 14 49 53" src="https://github.com/user-attachments/assets/5f09bdef-22f2-4f9a-b3cd-80e2675c39ed" />
+
 The model in this project stacks 3 convolutional blocks (`Conv2d` → `BatchNorm` → `ReLU` → `MaxPool`) followed by an adaptive pooling layer and two dense layers that output one of the 8 leaf classes. Training uses **Cross-Entropy Loss**, the **Adam** optimizer, and an **early-stopping** mechanism to prevent overfitting.
+
 
 ### Data augmentation
 
