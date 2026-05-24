@@ -168,7 +168,7 @@ class CNN(nn.Module):
             acc = 100.0 * n_correct / n_samples
             print(f"Accuracy of the network: {acc} %")
 
-            for i in range(len(labels)):
+            for i in range(len(self.classes)):
                 acc = 100.0 * n_class_correct[i] / n_class_samples[i]
                 print(f"Accuracy of {self.classes[i]}: {acc} %")
 
