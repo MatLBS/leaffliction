@@ -88,7 +88,7 @@ Applies the full set of computer vision transformations to every image and saves
 uv run srcs/train.py -src transformed_directory --epochs 15
 ```
 
-Trains the CNN, runs evaluation on the test split, saves the model as `models/model{epochs}.zip` and displays the training/validation loss curves.
+Trains the CNN, runs evaluation on the test split, saves the model as `models/model{epochs}.pth` and displays the training/validation loss curves.
 
 You can also skip training and reuse a pre-trained model from the `models/` directory.
 
@@ -97,7 +97,7 @@ You can also skip training and reuse a pre-trained model from the `models/` dire
 Using an existing model:
 
 ```bash
-uv run srcs/predict.py --model models/model20.zip --image images/Grape_Esca/image\ \(1\).JPG
+uv run srcs/predict.py --model models/model20.pth --image images/Grape_Esca/image\ \(1\).JPG
 ```
 
 Using your own trained model:
@@ -108,7 +108,8 @@ uv run srcs/predict.py --model models/XXX --image images/Grape_Esca/image\ \(1\)
 
 The original image and a random transformed version of it are displayed side by side, along with the predicted class.
 
-<img width="947" height="489" alt="Capture d’écran 2026-05-23 à 17 24 43" src="https://github.com/user-attachments/assets/791a9919-a642-4844-be8d-33fc1f96db33" />
+<img width="971" height="491" alt="Capture d’écran 2026-05-24 à 18 24 14" src="https://github.com/user-attachments/assets/c9e85f37-b149-41fa-b63c-7550f7cbc663" />
+
 
 ---
 
@@ -146,7 +147,7 @@ The original image and a random transformed version of it are displayed side by 
 
 | Option | Description |
 |--------|-------------|
-| `--model` | Path to the model `.zip` file (required) |
+| `--model` | Path to the model `.pth` file (required) |
 | `--image` | Path to the image to classify (required) |
 
 ---
@@ -164,9 +165,9 @@ leaffliction/
 │   ├── Grape_Esca/
 │   ├── Grape_healthy/
 │   └── Grape_spot/
-├── models/                       # Trained model checkpoints (.zip)
-│   ├── model15.zip
-│   └── model20.zip
+├── models/                       # Trained model checkpoints (.pth)
+│   ├── model15.pth
+│   └── model20.pth
 ├── srcs/
 │   ├── distribution.py           # Dataset class distribution analysis
 │   ├── augmentation.py           # Data augmentation pipeline
