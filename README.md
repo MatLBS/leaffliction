@@ -6,6 +6,10 @@ The dataset is composed of leaf images from two plants — **Apple** and **Grape
 
 ---
 
+## Live version 📡
+
+https://leaffliction.vercel.app/
+
 ## 📚 Key concepts
 
 ### What is a CNN?
